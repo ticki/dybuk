@@ -36,12 +36,6 @@ impl Iterator for MessageIter {
             let re_header = Regex::new(r"([0-9A-Za-z_\.\\/>< ]+):(\d+):\d+: .*(warning: |note: |error: |help: )(.*)").unwrap();
             let re_source = Regex::new(r"(\d+) (.*)").unwrap();
             if re_header.is_match(&l) {
-                if !stop {
-                    stop = true;
-                } else {
-                    self.buf = l.to_string();
-                    return Some(res);
-                }
 
                 res.push(NewLine);
 
@@ -59,6 +53,13 @@ impl Iterator for MessageIter {
                     "error: " =>   res.push(Error(msg)),
                     "help: " =>    res.push(Help(msg)),
                     _ =>           res.push(Wat),
+                }
+
+                if !stop {
+                    stop = true;
+                } else {
+                    self.buf = l.to_string();
+                    return Some(res);
                 }
             } else if l.len() > file.len() && re_source.is_match(&l[file.len()..]) && is_not_cmd(&l) {
                 let caps = re_source.captures(&l).unwrap();
