@@ -6,9 +6,6 @@ mod print;
 mod wrap;
 
 
-
-
-
 fn main() {
     let op = parse::MessageIter::new();
 

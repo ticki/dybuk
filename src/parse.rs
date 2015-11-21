@@ -33,7 +33,7 @@ impl Iterator for MessageIter {
         let stdin = si.lock().lines().map(|x| x.expect("Stdin failed"));
 
         for l in once(self.buf.clone()).chain(stdin) {
-            let re_header = Regex::new(r"([0-9A-Za-z_\.\\/]+):(\d+):\d+: .*(warning: |note: |error: |help: )(.*)").unwrap();
+            let re_header = Regex::new(r"([0-9A-Za-z_\.\\/>< ]+):(\d+):\d+: .*(warning: |note: |error: |help: )(.*)").unwrap();
             let re_source = Regex::new(r"(\d+) (.*)").unwrap();
             if re_header.is_match(&l) {
                 if !stop {
