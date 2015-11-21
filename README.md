@@ -1,7 +1,7 @@
 # dybuk
 Dybuk cleans up the ugly Rustc messages (inspired by Elm). Dybuk supports some other compilers aswell.
 
-![Dybuk](screenshot.png)
+<img src="screenshot.png" width="550">
 
 ## Usage
 
