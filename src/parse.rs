@@ -60,7 +60,7 @@ impl Iterator for MessageIter {
                     "help: " =>    res.push(Help(msg)),
                     _ =>           res.push(Wat),
                 }
-            } else if l.len() > file.len() && re_source.is_match(&l[file.len()..]) {
+            } else if l.len() > file.len() && re_source.is_match(&l[file.len()..]) && is_not_cmd(&l) {
                 let caps = re_source.captures(&l).unwrap();
 
                 res.push(Source(caps.at(1).unwrap_or("?").to_string(), caps.at(2).unwrap_or("????").to_string()));
@@ -71,12 +71,18 @@ impl Iterator for MessageIter {
                 if offset < l.len() {
                     res.push(Marker(l[offset..].to_string()));
                 }
-            } else {
+            } else if is_not_cmd(&l){
                 res.push(FollowUp(l.to_string()));
+            } else {
+                //res.push(Done);
             }
         }
         None
     }
+}
+
+fn is_not_cmd(l: &str) -> bool {
+    l.len() < 30 || !(l.starts_with("rustc ") || l.starts_with("cargo ") || l.starts_with("make ") || l.contains(" --") || l.contains(" --target=") || l.contains(" -C ") || l.contains(" -L ") || l.contains(" -A ") || l.contains(" -Z ") || l.contains(" -o ") || l.starts_with("sed ") || l.starts_with("mkdir ") || l.starts_with("cd "))
 }
 
 impl MessageIter {
