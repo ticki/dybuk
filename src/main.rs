@@ -6,6 +6,7 @@ use regex::Regex;
 use term_painter::ToStyle;
 use term_painter::Color::*;
 use term_painter::Attr::*;
+
 use std::io::Read;
 
 enum Message {
@@ -71,20 +72,20 @@ impl Message {
         res
     }
 
-    fn to_string(self) -> String {
+    fn print(self) {
         use Message::*;
 
         match self {
-            Header(ref file, ref line) =>  format!("+---- {} : {} ----+", Blue.paint(file), line),
-            Warning(warn) =>           format!("      =====>  {}{}", Yellow.paint("warning: "), warn),
-            Note(note) =>              format!("      =====>  {}{}", Green.paint("note: "), note),
-            Error(err) =>              format!("      =====>  {}{}", Red.paint("error: "), err),
-            Help(err) =>               format!("      =====>  {}{}", Blue.paint("help: "), err),
-            FollowUp(msg) =>           format!("           >  {}", msg),
-            Source(line, code) =>      format!(" {} |>  {}", Magenta.paint(line), code),
-            Marker(ref mrk) =>         format!("{}", Yellow.paint(mrk)),
-            NewLine =>                 format!("\n"),
-            Wat =>                     format!("Dafuq?"),
+            Header(ref file, ref line) =>  println!("+---- {} : {} ----+", Blue.paint(file), Blue.paint(line)),
+            Warning(warn) =>               println!("      =====>  {}{}", Yellow.paint("warning: "), warn),
+            Note(note) =>                  println!("      =====>  {}{}", Green.paint("note: "), note),
+            Error(err) =>                  println!("      =====>  {}{}", Red.paint("error: "), err),
+            Help(err) =>                   println!("      =====>  {}{}", Blue.paint("help: "), err),
+            FollowUp(msg) =>               println!("           >  {}", msg),
+            Source(line, code) =>          println!(" {}  {}", Magenta.paint(format!("{} |>", line)), code),
+            Marker(ref mrk) =>             println!("{}", Yellow.paint(mrk)),
+            NewLine =>                     println!("\n"),
+            Wat =>                         println!("Dafuq?"),
         }
     }
 }
@@ -93,5 +94,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_to_string(&mut input);
 
-    print!("{}", Message::parse(&input).into_iter().map(|x| x.to_string()).collect::<Vec<_>>().join("\n"));
+    for i in Message::parse(&input) {
+        i.print();
+    }
 }
