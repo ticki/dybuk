@@ -64,13 +64,9 @@ impl Iterator for MessageIter {
                 let caps = re_source.captures(&l).unwrap();
 
                 res.push(Source(caps.at(1).unwrap_or("?").to_string(), caps.at(2).unwrap_or("????").to_string()));
-            } else if l.chars().next() == Some(' ') && l.contains("^") {
+            } else if l.starts_with(' ') && l.contains("^") {
 
-                let offset = if let Some(&Source(ref line, _)) = res.last() {
-                    file.len() + line.len().saturating_sub(6)
-                } else {
-                    0
-                };
+                let offset = file.len() - 4; //+ 5 - 5;
 
                 if offset < l.len() {
                     res.push(Marker(l[offset..].to_string()));
