@@ -45,6 +45,13 @@ impl<'a> Iterator for &'a mut MessageIter {
             let re_source = Regex::new(r"(\d+) (.*)").unwrap();
             if re_header.is_match(&l) {
 
+                if !stop {
+                    stop = true;
+                } else {
+                    self.buf = l.to_string();
+                    return Some(res);
+                }
+
                 res.push(NewLine);
 
                 let caps = re_header.captures(&l).unwrap();
@@ -69,12 +76,6 @@ impl<'a> Iterator for &'a mut MessageIter {
                     _ =>           res.push(Wat),
                 }
 
-                if !stop {
-                    stop = true;
-                } else {
-                    self.buf = l.to_string();
-                    return Some(res);
-                }
             } else if l.len() > file.len() && re_source.is_match(&l[file.len()..]) && is_not_cmd(&l) {
                 let caps = re_source.captures(&l).unwrap();
 
@@ -86,7 +87,7 @@ impl<'a> Iterator for &'a mut MessageIter {
                 if offset < l.len() {
                     res.push(Marker(l[offset..].to_string()));
                 }
-            } else if l.contains("Aborting due to previous") || l.contains("Build failed") || l.contains("Could not compile") {
+            } else if l.contains("aborting due to previous") || l.contains("Build failed") || l.contains("Could not compile") {
                 res.push(Aborting);
                 stop = true;
                 self.terminated = true;
