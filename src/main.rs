@@ -5,13 +5,19 @@ mod parse;
 mod print;
 mod wrap;
 
+use term_painter::ToStyle;
+use term_painter::Color::*;
+use term_painter::Attr::*;
+
 
 fn main() {
-    let op = parse::MessageIter::new();
+    let mut op = parse::MessageIter::new();
 
-    for i in op {
+    for i in &mut op {
         for l in i {
             l.print();
         }
     }
+
+    println!("\n~~~ {} : {} ~~~", Red.bold().paint(op.errors.to_string()), Yellow.bold().paint(op.warnings.to_string()));
 }

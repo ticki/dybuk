@@ -6,6 +6,8 @@ use regex::Regex;
 pub struct MessageIter {
     buf: String,
     terminated: bool,
+    pub errors: u16,
+    pub warnings: u16,
 }
 
 pub enum Message {
@@ -22,7 +24,7 @@ pub enum Message {
     Aborting,
 }
 
-impl Iterator for MessageIter {
+impl<'a> Iterator for &'a mut MessageIter {
     type Item = Vec<Message>;
 
     fn next(&mut self) -> Option<Vec<Message>> {
@@ -54,9 +56,15 @@ impl Iterator for MessageIter {
 
                 // Warning, header or note?
                 match caps.at(3).unwrap_or("?") {
-                    "warning: " => res.push(Warning(msg)),
+                    "warning: " => {
+                        self.warnings += 1;
+                        res.push(Warning(msg));
+                    },
                     "note: " =>    res.push(Note(msg)),
-                    "error: " =>   res.push(Error(msg)),
+                    "error: " => {
+                        self.errors += 1;
+                        res.push(Error(msg));
+                    },
                     "help: " =>    res.push(Help(msg)),
                     _ =>           res.push(Wat),
                 }
@@ -82,6 +90,8 @@ impl Iterator for MessageIter {
                 res.push(Aborting);
                 stop = true;
                 self.terminated = true;
+            } else if l.contains("Compilining ") || l.contains("file:///home/") || l.is_empty() {
+                // todo
             } else if is_not_cmd(&l){
                 res.push(FollowUp(l.to_string()));
             }
@@ -105,6 +115,8 @@ impl MessageIter {
         MessageIter {
             buf: String::new(),
             terminated: false,
+            errors: 0,
+            warnings: 0,
         }
     }
 }
