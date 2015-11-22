@@ -5,6 +5,7 @@ use regex::Regex;
 
 pub struct MessageIter {
     buf: String,
+    terminated: bool,
 }
 
 pub enum Message {
@@ -18,6 +19,7 @@ pub enum Message {
     Marker(String),
     NewLine,
     Wat,
+    Aborting,
 }
 
 impl Iterator for MessageIter {
@@ -25,6 +27,10 @@ impl Iterator for MessageIter {
 
     fn next(&mut self) -> Option<Vec<Message>> {
         use self::Message::*;
+
+        if self.terminated {
+            return None;
+        }
 
         let mut res = Vec::new();
         let mut file = String::new();
@@ -72,13 +78,21 @@ impl Iterator for MessageIter {
                 if offset < l.len() {
                     res.push(Marker(l[offset..].to_string()));
                 }
+            } else if l.contains("Aborting due to previous") || l.contains("Build failed") || l.contains("Could not compile") {
+                res.push(Aborting);
+                stop = true;
+                self.terminated = true;
             } else if is_not_cmd(&l){
                 res.push(FollowUp(l.to_string()));
-            } else {
-                //res.push(Done);
             }
         }
-        None
+
+        self.terminated = true;
+        if stop {
+            Some(res)
+        } else {
+            None
+        }
     }
 }
 
@@ -90,6 +104,7 @@ impl MessageIter {
     pub fn new() -> Self {
         MessageIter {
             buf: String::new(),
+            terminated: false,
         }
     }
 }

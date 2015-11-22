@@ -21,6 +21,7 @@ impl Message {
             Marker(ref mrk) =>             println!("{}", Yellow.paint(mrk)),
             NewLine =>                     println!("\n"),
             Wat =>                         println!("Dafuq?"),
+            Aborting =>                    println!("\n{}", Red.paint("Aborting due to previous errors")),
         }
     }
 }
