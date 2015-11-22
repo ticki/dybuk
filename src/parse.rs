@@ -18,6 +18,7 @@ pub enum Message {
     Help(String),
     FollowUp(String),
     Source(String, String),
+    Etc,
     Marker(String),
     NewLine,
     Wat,
@@ -93,6 +94,8 @@ impl<'a> Iterator for &'a mut MessageIter {
                 self.terminated = true;
             } else if l.contains("Compilining ") || l.contains("file:///home/") || l.is_empty() {
                 // todo
+            } else if l.contains("  ...") {
+                res.push(Etc);
             } else if is_not_cmd(&l){
                 res.push(FollowUp(l.to_string()));
             }

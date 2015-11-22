@@ -18,6 +18,7 @@ impl Message {
             Help(err) =>                   println!("      =====>  {}{}", Green.bold().paint("help: "), Bold.paint(&wrap_msg(err, 6))),
             FollowUp(msg) =>               println!("           >  {}", Bold.paint(msg)),
             Source(line, code) =>          println!(" {}  {}", Magenta.paint(format!("{} |>", line)), code),
+            Etc =>                         println!(" {}", Magenta.paint("...")),
             Marker(ref mrk) =>             println!("{}", Yellow.paint(mrk)),
             NewLine =>                     println!("\n"),
             Wat =>                         println!("Dafuq?"),
