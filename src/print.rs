@@ -1,5 +1,6 @@
 use term_painter::ToStyle;
 use term_painter::Color::*;
+use term_painter::Attr::*;
 
 use parse::Message;
 use parse::Message::*;
