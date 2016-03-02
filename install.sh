@@ -59,7 +59,7 @@ function main() {
 				return $?
 			fi
 			;;
-	esac	
+	esac
 }
 
 main "$@"
