@@ -7,7 +7,6 @@ mod wrap;
 
 use term_painter::ToStyle;
 use term_painter::Color::*;
-use term_painter::Attr::*;
 
 
 fn main() {
