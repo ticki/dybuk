@@ -9,7 +9,7 @@ First of all install dybuk.
 
 ```
 cd /path/to/dybuk
-cargo install
+cargo install --path .
 ```
 
 When that's done, you can pipe Rustc output through dybuk:
