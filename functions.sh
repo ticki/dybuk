@@ -1,9 +1,14 @@
 #!/bin/bash
 
+inline() { echo -en "$*"; }
+log_l() { inline ":: $*\n"; }
+log_n() { inline "N: $*\n"; }
+log_w() { inline "W: $*\n"; }
+log_e() { inline "E: $*\n"; } 1>&2
+
 function check-privileges() {
-	local ERR_CODE=""
-	[[ "$EUID" == "0" ]] && ERR_CODE=0 || ERR_CODE=1
-	return $ERR_CODE
+	[ "$EUID" = "0" ]
+	return "$?"
 }
 
 function ask_yesno() {
@@ -11,13 +16,10 @@ function ask_yesno() {
 	while [[ "$READ_RESULT" != "y" && "$READ_RESULT" != "n" ]]; do
 		echo -n "$1 [yn]: "
 		read READ_RESULT
-		[[ "$READ_RESULT" ]] || READ_RESULT="yn"
+		[ "$READ_RESULT" ] || READ_RESULT="yn"
 	done
 
-	if [[ "$READ_RESULT" == "y" ]]; then
-		return 0
-	elif [[ "$READ_RESULT" == "n" ]]; then
-		return 1
-	fi
+	[ "$READ_RESULT" == "y" ] && return "$?"
+	! [ "$READ_RESULT" == "n" ] || return "$?"
 }
 

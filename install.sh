@@ -1,37 +1,36 @@
 #!/bin/bash
 
-# Deps: sudo
-
 function config() {
+	cd "$(dirname "$BASH_SOURCE")"
+
+	[ "$DEBUG" ] && set -x
 	source "functions.sh"
-	: ${INSTALL:=install -Dm766}
+
+	: ${INSTALL:=install -Dm u=rwx,g=rx,o=rx}
 	: ${BUILD:=cargo build --release}
-
-	set -o nounset
-	if [[ ! -e "target/release/dybuk" || ! -e "target/release/deps" ]]; then
-		return 1
-	fi
-
-	return 0
 }
 
 function build() {
-	echo "N: Build command: \`$BUILD\`"
+	log_n "Build command: \`$BUILD\`"
+
 	$BUILD
-	return $?
+	return "$?"
 }
 
 function try_to_install() {
-	echo "N: Install \`$1\` into \`$2\`"
-	if [[ "$EUID" != "0" ]]; then
-		$(which sudo) $INSTALL "$1" "$2"
-		return
+	log_l "Install \`$1\` into \`$2\`"
+	if ! [ "$EUID" = "0" ]; then
+		"$(which sudo)" $INSTALL "$1" "$2"
+		return "$?"
 	fi
 
 	$INSTALL "$1" "$2"
+	return "$?"
 }
 
 function _install() {
+	log_n "Install command: \`$INSTALL\`"
+
 	cd "target/release"
 	try_to_install "dybuk" "/usr/local/bin/dybuk"
 	while read file; do
@@ -40,27 +39,30 @@ function _install() {
 }
 
 function main() {
-	config
+	config "$@" || return "$?"
+	while shift; do :; done
 
+	[[ ! -e "target/release/dybuk" || ! -e "target/release/deps" ]]
 	case "$?" in
 		0)
 			_install
 			;;
 
 		1)
-			echo 'E: Generated files do not exists.'
-			if [[ "$EUID" == "0" ]]; then
-				echo "N: Building the project with root privileges is prohibited."
+			log_e "Generated files doesn't exists."
+			if [ "$EUID" = "0" ]; then
+				log_e "Building the project with root privileges is prohibited."
 				return 1
 			fi
 
 			if ask_yesno "Build project"; then
 				build && _install
-				return $?
+				return "$?"
 			fi
 			;;
 	esac
 }
 
 main "$@"
+exit "$?"
 
