@@ -1,22 +1,27 @@
 #!/bin/bash
 
 function config() {
+	cd "$(dirname "$BASH_SOURCE")"
 	source "functions.sh"
-	set -o nounset
-	return 0
+	return "$?"
+}
+
+function rm_custom_format() {
+	perl -pe "s/^r(.+) .(.+).$/:: R\1 '\2 '\./"
 }
 
 function main() {
-	if config; then
-		if check-privileges; then
-			rm -rvf /usr/local/bin/dybuk | perl -pe "s/^r(.+) .(.+).$/N: R\1 '\2 '\./"
-			rm -rfv /usr/local/lib/rustlib/dybuk | perl -pe "s/^r(.+) .(.+).$/N: R\1 '\2 '\./"
-		else
-			echo 'E: This script must be run with root privileges.'
-			return 1
-		fi
+	config "$@" || return "$?"
+	while shift; do :; done
+
+	if check-privileges; then
+		rm -rvf /usr/local/bin/dybuk | rm_custom_format
+		rm -rfv /usr/local/lib/rustlib/dybuk | rm_custom_format
+	else
+		exec "$(which "sudo")" "./$(basename "$BASH_SOURCE")"
 	fi
 }
 
 main "$@"
+exit "$?"
 

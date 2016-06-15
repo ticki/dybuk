@@ -1,20 +1,25 @@
 #!/bin/bash
 
 function config() {
+	set -e
+	cd "$(dirname "$BASH_SOURCE")"
+
 	source "functions.sh"
-	set -o nounset
-	return 0
+	return "$?"
 }
 
 function main() {
-	if config; then
-		if check-privileges; then
-			./uninstall.sh && ./install.sh
-		else
-			$(which sudo) ./uninstall.sh && ./install.sh
-		fi
+	config "$@" || return "$?"
+	while shift; do :; done
+
+	if check-privileges; then
+		./uninstall.sh
+		./install.sh
+	else
+		"$(which sudo)" ./uninstall.sh
+		"$(which sudo)" ./install.sh
 	fi
 }
 
 main "$@"
-
+exit "$?"
