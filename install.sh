@@ -4,7 +4,7 @@
 
 function config() {
 	source "functions.sh"
-	: ${INSTALL:=install -Dm766}
+	: ${INSTALL:=install -Dm u=rwx,g=rx,o=rx}
 	: ${BUILD:=cargo build --release}
 
 	set -o nounset
